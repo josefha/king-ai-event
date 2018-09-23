@@ -4,6 +4,7 @@ import time
 
 game = SnakeGame() #Connects you to the Client
 turn = 0
+is_player_one = False
 
 def getOkeyMoves(simBoard):
     playerMoves, enemyMoves = game.getPossibleMoves(simBoard)
@@ -23,13 +24,13 @@ def getOkeyMoves(simBoard):
 
     # if återvändsgränd
     if not newPlayerMoves:
-        print("-----")
+        #print("-----")
         newPlayerMoves.append('down')
 
 
     if not newEnemyMoves:
-        print("-----")
-        newPlayerMoves.append('down')
+        #print("-----")
+        newEnemyMoves.append('down')
 
     # print(newEnemyMoves)
     # print(newPlayerMoves)
@@ -56,7 +57,7 @@ def MakePredictions(board, playerMoves, enemyMoves, thinkTime, stats):
 
 #
 while(game.awaitNextGameState() == "ongoing"):
-    print("-----------------------------")
+    #print("-----------------------------")
     start_time = time.time()
     turn_time = 0
 
@@ -85,18 +86,45 @@ while(game.awaitNextGameState() == "ongoing"):
     #
     # numberOfSims = (thinkTime * 3) ##
 
-    turn_time = time.time() - start_time
+    #print(is_player_one)
+    p = board.player
+    if (p.x == 2 and p.y == 2):
+        #print("True")
+        is_player_one = True
 
-    while(turn_time < 2.8):
-        #print(turn_time)
-        #start_time = time.time()
-        stats = MakePredictions(board, playerMoves[:], enemyMoves[:], int(1), stats)
-        numberOfSims = numberOfSims + (3 * int(thinkTime/3))
-        # print("Number of sims = ",numberOfSims)
-        #print("Stats ", stats)
-        best_move = playerMoves[stats.index(max(stats))]
+    if(turn < 5):
+        #print(turn)
+        if(is_player_one):
+            if(turn == 1):
+                game.makeMove('down')
+            elif(turn == 2):
+                game.makeMove('right')
+            elif(turn == 3):
+                game.makeMove('down')
+            elif(turn == 4):
+                game.makeMove('right')
+        else:
+            if(turn == 1):
+                game.makeMove('up')
+            elif(turn == 2):
+                game.makeMove('left')
+            elif(turn == 3):
+                game.makeMove('up')
+            elif(turn == 4):
+                game.makeMove('left')
 
-        game.makeMove(best_move)
-        #end_time = time.time()
-        #print(end_time-start_time)
+    else:
         turn_time = time.time() - start_time
+        while(turn_time < 2.7):
+            #print(turn_time)
+            #start_time = time.time()
+            stats = MakePredictions(board, playerMoves[:], enemyMoves[:], int(1), stats)
+            numberOfSims = numberOfSims + (3 * int(thinkTime/3))
+            # print("Number of sims = ",numberOfSims)
+            #print("Stats ", stats)
+            best_move = playerMoves[stats.index(max(stats))]
+
+            game.makeMove(best_move)
+            #end_time = time.time()
+            #print(end_time-start_time)
+            turn_time = time.time() - start_time
